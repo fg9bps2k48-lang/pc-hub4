@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PC Hub">
+<meta name="theme-color" content="#2563eb">
+<title>PC Hub v6</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f1f5f9;color:#1e293b;font-size:15px;line-height:1.4;margin:0;padding:8px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));-webkit-text-size-adjust:100%}
+h1{margin:0;font-size:16px;color:#2563eb}
+header{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px;border-radius:10px;margin-bottom:8px;gap:6px;flex-wrap:wrap}
+.h-actions{display:flex;gap:4px}
+.tabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.tb{padding:10px 12px;background:#e2e8f0;border:none;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;color:#1e293b;font-family:inherit;min-height:44px;touch-action:manipulation}
+.tb.on{background:#2563eb;color:#fff}
+.tc{display:none}.tc.on{display:block}
+.card{background:#fff;padding:12px;border-radius:10px;margin-bottom:8px;border:1px solid #e2e8f0}
+.card h2{margin:0 0 10px;font-size:15px;border-bottom:2px solid #f1f5f9;padding-bottom:6px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #e2e8f0;border-radius:7px;font-size:16px;font-family:inherit;background:#fafbfc;margin-bottom:8px;color:#1e293b}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#2563eb;background:#fff}
+label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:3px}
+button{padding:11px 14px;background:#2563eb;color:#fff;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-family:inherit;font-size:14px;min-height:44px;user-select:none;touch-action:manipulation}
+button:active{opacity:.75}
+.green{background:#16a34a}.red{background:#ef4444}.gray{background:#e2e8f0;color:#1e293b}.purple{background:#7c3aed}
+.small{padding:8px 10px;font-size:12.5px;min-height:36px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
+th,td{padding:8px 7px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:middle}
+th{background:#f1f5f9;font-size:11.5px;color:#475569}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.badge{padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;display:inline-block;white-space:nowrap}
+.bG{background:#dcfce7;color:#15803d}.bB{background:#e0f2fe;color:#0369a1}
+.bY{background:#fef3c7;color:#b45309}.bP{background:#ede9fe;color:#6d28d9}.bR{background:#ffe4e6;color:#9f1239}
+.hint{background:#eff6ff;border-left:3px solid #2563eb;padding:8px 10px;border-radius:5px;font-size:12.5px;color:#1e40af;margin-bottom:8px}
+.purple-hint{background:#faf5ff;border-color:#7c3aed;color:#5b21b6}
+.kit-pick{max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:7px;padding:4px;background:#fff;margin-bottom:8px;-webkit-overflow-scrolling:touch}
+.kit-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:5px;font-size:13px;border-bottom:1px solid #f1f5f9;cursor:pointer;min-height:44px}
+.kit-row:active{background:#eef2ff}
+.kit-row input[type=checkbox]{width:22px;height:22px;margin:0;flex-shrink:0;accent-color:#7c3aed;padding:0}
+.kit-row .kn{flex:1}
+.kit-row small{color:#64748b;font-size:11.5px}
+.pc-card,.kit-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px}
+.kit-card{background:#faf5ff;border-color:#e9d5ff}
+.pc-card h4,.kit-card h4{margin:0 0 6px;font-size:14px;color:#2563eb}
+.kit-card h4{color:#7c3aed}
+.actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+#toast{position:fixed;bottom:14px;left:50%;transform:translate(-50%,20px);background:#1e293b;color:#fff;padding:11px 16px;border-radius:8px;font-size:13.5px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.err{background:#ef4444}
+#toast.ok{background:#16a34a}
+#modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:1000;padding:16px;align-items:center;justify-content:center}
+#modal.on{display:flex}
+#modalBox{background:#fff;border-radius:12px;padding:18px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto}
+#modalBox h3{margin:0 0 12px;font-size:16px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.modal-actions button{flex:1}
+#boot{background:#fbbf24;color:#78350f;padding:10px;text-align:center;font-weight:700;border-radius:8px;margin-bottom:8px;font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="boot">⏳ Проверка JavaScript...</div>
+<noscript>
+<div style="background:#ef4444;color:#fff;padding:20px;text-align:center;font-size:16px;border-radius:8px;margin-bottom:8px">
+⚠️ <b>JavaScript отключён!</b><br>
+Откройте файл через Safari или Chrome, а не через предпросмотр.
+</div>
+</noscript>
+
+<div id="toast"></div>
+<div id="modal"><div id="modalBox"><h3 id="mTitle">Редактировать</h3><div id="mBody"></div><div class="modal-actions"><button type="button" class="gray" onclick="PC.closeModal()">Отмена</button><button type="button" class="green" onclick="PC.saveModal()">Сохранить</button></div></div></div>
+
+<header>
+<h1>🚀 PC Hub v6</h1>
+<div class="h-actions">
+<button type="button" class="gray small" onclick="PC.exp()">📤</button>
+<button type="button" class="gray small" onclick="document.getElementById('impFile').click()">📥</button>
+<button type="button" class="red small" onclick="PC.clr()">🗑</button>
+<input type="file" id="impFile" accept=".json" style="display:none">
+</div>
+</header>
+
+<div class="tabs">
+<button type="button" class="tb on" id="tabBtn-wh" onclick="PC.tab('wh',this)">📦 Склад</button>
+<button type="button" class="tb" id="tabBtn-kits" onclick="PC.tab('kits',this)">🧩 Комплекты</button>
+<button type="button" class="tb" id="tabBtn-asm" onclick="PC.tab('asm',this)">🤖 Сборщик</button>
+<button type="button" class="tb" id="tabBtn-pcs" onclick="PC.tab('pcs',this)">🖥 ПК</button>
+<button type="button" class="tb" id="tabBtn-cli" onclick="PC.tab('cli',this)">👥 Клиенты</button>
+</div>
+
+<!-- СКЛАД -->
+<div id="wh" class="tc on">
+<div class="card"><h2>➕ Добавить деталь</h2>
+<label>Категория</label>
+<select id="cat" onchange="PC.sockOpts()">
+<option>Процессор</option><option>Видеокарта</option><option>Материнская плата</option>
+<option>Оперативная память</option><option>Кулер</option><option>Накопитель</option>
+<option>Блок питания</option><option>Корпус</option>
+</select>
+<label>Модель</label><input id="nm" placeholder="Ryzen 5 5600">
+<div class="row">
+<div><label>Закупка (BYN)</label><input id="pi" type="number" step="0.01" min="0"></div>
+<div><label>Продажа (BYN)</label><input id="po" type="number" step="0.01" min="0"></div>
+</div>
+<div class="row">
+<div><label>Кол-во</label><input id="qt" type="number" value="1" min="1"></div>
+<div><label>Статус</label><select id="st">
+<option>На полке</option><option>На почте</option><option>Заказано</option><option>Оплачено</option>
+</select></div>
+</div>
+<div id="sockDiv"><label>Сокет/Тип</label><select id="sk"><option value="">—</option></select></div>
+<button type="button" class="green" onclick="PC.addItem()" style="width:100%">➕ Добавить на склад</button>
+</div>
+<div class="card"><h2>📊 Сводка</h2><div id="summ"></div></div>
+<div class="card"><h2>📋 Комплектующие</h2>
+<div class="tw"><table><thead><tr>
+<th>Кат.</th><th>Модель</th><th>Сокет</th><th>Закуп</th><th>Прод.</th><th>Кол.</th><th>Статус</th><th></th>
+</tr></thead><tbody id="invBody"></tbody></table></div>
+</div>
+</div>
+
+<!-- КОМПЛЕКТЫ -->
+<div id="kits" class="tc">
+<div class="card"><h2>🧩 Создать комплект</h2>
+<div class="hint purple-hint">💡 Связка деталей (CPU + материнка + RAM + кулер).</div>
+<label>Название</label><input id="kNm" placeholder="Комплект Ryzen 5 + B450 + 16GB">
+<div class="row">
+<div><label>Цена продажи (BYN)</label><input id="kPr" type="number" step="0.01" min="0" oninput="PC.calcKit()"></div>
+<div><label>Статус</label><select id="kSt"><option>На полке</option><option>Заказано</option><option>Оплачено</option></select></div>
+</div>
+<label>Что входит (галочки)</label>
+<div id="kPick" class="kit-pick"><small style="color:#94a3b8">Склад пуст</small></div>
+<div id="kSum" class="hint purple-hint">Себестоимость: <b>0</b> • Продажа: <b>0</b> • Маржа: <b>0</b> BYN</div>
+<button type="button" class="purple" onclick="PC.addKit()" style="width:100%">💾 Сохранить комплект</button>
+</div>
+<div class="card"><h2>📚 Мои комплекты</h2><div id="kList"></div></div>
+</div>
+
+<!-- СБОРЩИК -->
+<div id="asm" class="tc">
+<div class="card"><h2>🤖 Умный сборщик</h2>
+<div class="hint">💡 Учитывает комплекты и совместимость (сокет, RAM).</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button type="button" class="green" onclick="PC.build()">🔄 Собрать ПК</button>
+<button type="button" class="gray" onclick="PC.buildAll()">📚 Что есть</button>
+</div>
+<div id="bRes" class="hint" style="margin-top:10px">Нажмите «Собрать ПК»</div>
+</div>
+</div>
+
+<!-- ПК -->
+<div id="pcs" class="tc">
+<div class="card"><h2>➕ Добавить ПК</h2>
+<label>Название</label><input id="pNm" placeholder="Игровой ПК">
+<label>Процессор</label><input id="pCpu" placeholder="Ryzen 5 3600">
+<label>Видеокарта</label><input id="pGpu" placeholder="GTX 1660">
+<label>Материнка</label><input id="pMb" placeholder="B450M">
+<label>RAM</label><input id="pRam" placeholder="16GB DDR4">
+<label>Накопитель</label><input id="pSs" placeholder="SSD 512">
+<label>БП</label><input id="pPsu" placeholder="600W">
+<div class="row">
+<div><label>Себестоимость</label><input id="pCi" type="number" step="0.01" min="0"></div>
+<div><label>Цена</label><input id="pCo" type="number" step="0.01" min="0"></div>
+</div>
+<button type="button" class="green" onclick="PC.addPc()" style="width:100%">💾 Сохранить ПК</button>
+</div>
+<div class="card"><h2>🖥 Мои ПК + рекомендации</h2><div id="pList"></div></div>
+</div>
+
+<!-- КЛИЕНТЫ -->
+<div id="cli" class="tc">
+<div class="card"><h2>➕ Клиент</h2>
+<label>Имя</label><input id="cNm" placeholder="Иван (Минск)">
+<label>Контакты</label><input id="cCt" placeholder="+375...">
+<label>Источник</label><select id="cSr"><option>Куфар</option><option>Instagram</option><option>TikTok</option><option>По знакомству</option><option>Другое</option></select>
+<label>Статус</label><select id="cSt"><option>Потенциальный</option><option>Купил</option><option>Постоянный</option></select>
+<label>Заметка</label><textarea id="cNo" rows="2" placeholder="Что ищет"></textarea>
+<button type="button" class="green" onclick="PC.addCli()" style="width:100%">💾 Сохранить</button>
+</div>
+<div class="card"><h2>👥 Клиенты</h2>
+<div class="tw"><table><thead><tr>
+<th>Имя</th><th>Контакты</th><th>Источник</th><th>Статус</th><th>Заметка</th><th></th>
+</tr></thead><tbody id="cBody"></tbody></table></div>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ BOOT CHECK ============ */
+var bootEl = document.getElementById('boot');
+function bootOK(){
+  if(bootEl){
+    bootEl.style.background='#16a34a';
+    bootEl.style.color='#fff';
+    bootEl.textContent='✅ JS работает — кнопки готовы';
+    setTimeout(function(){bootEl.style.display='none'},3000);
+  }
+}
+function bootFail(msg){
+  if(bootEl){
+    bootEl.style.background='#ef4444';
+    bootEl.style.color='#fff';
+    bootEl.textContent='❌ Ошибка JS: '+msg;
+  }
+}
+
+try {
+
+/* ============ ДАННЫЕ ============ */
+var PC = window.PC = {};
+
+function load(k){
+  try { return JSON.parse(localStorage.getItem(k) || '[]'); }
+  catch(e){ return []; }
+}
+
+PC.inv  = load('inv');
+PC.kits = load('kits');
+PC.pcs  = load('pcs');
+PC.cli  = load('cli');
+
+function save(){
+  try {
+    localStorage.setItem('inv',  JSON.stringify(PC.inv  || []));
+    localStorage.setItem('kits', JSON.stringify(PC.kits || []));
+    localStorage.setItem('pcs',  JSON.stringify(PC.pcs  || []));
+    localStorage.setItem('cli',  JSON.stringify(PC.cli  || []));
+  } catch(e){ if(PC.toast) PC.toast('Не сохранилось','err'); }
+}
+
+PC.toast = function(m,t){
+  var e = document.getElementById('toast');
+  if(!e) return;
+  e.textContent = m;
+  e.className = (t||'ok')+' show';
+  clearTimeout(PC._tt);
+  PC._tt = setTimeout(function(){ e.className = t||'ok'; }, 2200);
+};
+PC.fmt = function(n){ return (Number(n)||0).toFixed(2); };
+PC.uid = function(){ return Date.now()+''+Math.floor(Math.random()*9999); };
+PC.esc = function(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+};
+
+/* ============ СПРАВОЧНИК ============ */
+var CATS = ['Процессор','Видеокарта','Материнская плата','Оперативная память','Кулер','Накопитель','Блок питания','Корпус'];
+var SOCKETS = {
+  'Процессор':['AM4','AM5','LGA1700','LGA1200','LGA1151'],
+  'Материнская плата':['AM4','AM5','LGA1700','LGA1200','LGA1151'],
+  'Оперативная память':['DDR4','DDR5','DDR3'],
+  'Видеокарта':['PCIe'],'Накопитель':['SATA','NVMe'],
+  'Блок питания':['400W','500W','600W','750W','850W'],
+  'Корпус':['ATX','mATX','ITX'],
+  'Кулер':['AM4','AM5','LGA1700','Универсальный']
+};
+var ITEM_ST=['На полке','На почте','Заказано','Оплачено'];
+var KIT_ST=['На полке','Заказано','Оплачено'];
+var CLI_ST=['Потенциальный','Купил','Постоянный'];
+var SOURCES=['Куфар','Instagram','TikTok','По знакомству','Другое'];
+
+/* ============ ВКЛАДКИ ============ */
+PC.tab = function(name,btn){
+  var i, els;
+  els = document.querySelectorAll('.tc');
+  for(i=0;i<els.length;i++) els[i].classList.remove('on');
+  els = document.querySelectorAll('.tb');
+  for(i=0;i<els.length;i++) els[i].classList.remove('on');
+  var el = document.getElementById(name);
+  if(el) el.classList.add('on');
+  var be = btn || document.getElementById('tabBtn-'+name);
+  if(be) be.classList.add('on');
+  if(name==='wh'){ PC.renderInv(); PC.renderSum(); }
+  if(name==='kits'){ PC.renderPick(); PC.renderKits(); }
+  if(name==='asm'){ PC.build(); }
+  if(name==='pcs'){ PC.renderPcs(); }
+  if(name==='cli'){ PC.renderCli(); }
+};
+
+/* ============ СКЛАД ============ */
+PC.sockOpts = function(){
+  var c = document.getElementById('cat').value;
+  var arr = SOCKETS[c] || [];
+  var h = '<option value="">—</option>';
+  for(var i=0;i<arr.length;i++) h += '<option>'+arr[i]+'</option>';
+  document.getElementById('sk').innerHTML = h;
+  document.getElementById('sockDiv').style.display = arr.length ? 'block' : 'none';
+};
+
+PC.addItem = function(){
+  var nm = document.getElementById('nm').value.trim();
+  if(!nm){ PC.toast('Введите модель','err'); return; }
+  PC.inv.push({
+    id: PC.uid(),
+    cat: document.getElementById('cat').value,
+    name: nm,
+    sock: document.getElementById('sk').value,
+    pin: +document.getElementById('pi').value || 0,
+    pout: +document.getElementById('po').value || 0,
+    qty: +document.getElementById('qt').value || 1,
+    st: document.getElementById('st').value
+  });
+  save();
+  document.getElementById('nm').value = '';
+  document.getElementById('pi').value = '';
+  document.getElementById('po').value = '';
+  document.getElementById('qt').value = '1';
+  PC.renderInv(); PC.renderSum();
+  PC.toast('Деталь добавлена');
+};
+
+PC.delItem = function(idx){
+  if(!confirm('Удалить деталь?')) return;
+  PC.inv.splice(+idx,1);
+  save();
+  PC.renderInv(); PC.renderSum();
+  PC.toast('Удалено');
+};
+
+PC.editItem = function(idx){
+  var it = PC.inv[+idx]; if(!it) return;
+  PC.openModal('✏️ Редактировать деталь',[
+    {k:'cat',label:'Категория',type:'select',options:CATS,value:it.cat},
+    {k:'name',label:'Модель',value:it.name},
+    {k:'sock',label:'Сокет/Тип',type:'select',options:[''].concat(SOCKETS[it.cat]||[]),value:it.sock||''},
+    {k:'pin',label:'Закупка (BYN)',type:'number',step:'0.01',value:it.pin},
+    {k:'pout',label:'Продажа (BYN)',type:'number',step:'0.01',value:it.pout},
+    {k:'qty',label:'Кол-во',type:'number',value:it.qty},
+    {k:'st',label:'Статус',type:'select',options:ITEM_ST,value:it.st}
+  ], function(d){
+    d.pin = +d.pin||0; d.pout = +d.pout||0; d.qty = +d.qty||1;
+    for(var k in d) it[k] = d[k];
+    save(); PC.renderInv(); PC.renderSum();
+    PC.toast('Сохранено');
+  });
+};
+
+PC.stBadge = function(s){
+  var m = {'На полке':'bG','На почте':'bB','Заказано':'bY','Оплачено':'bP',
+           'Потенциальный':'bR','Купил':'bG','Постоянный':'bP'};
+  return '<span class="badge '+(m[s]||'bG')+'">'+PC.esc(s)+'</span>';
+};
+
+PC.renderInv = function(){
+  var h = '', i, x;
+  for(i=0;i<PC.inv.length;i++){
+    x = PC.inv[i];
+    h += '<tr><td>'+PC.esc(x.cat)+'</td>'
+      + '<td><b>'+PC.esc(x.name)+'</b></td>'
+      + '<td>'+PC.esc(x.sock||'—')+'</td>'
+      + '<td>'+PC.fmt(x.pin)+'</td>'
+      + '<td>'+PC.fmt(x.pout)+'</td>'
+      + '<td>'+x.qty+'</td>'
+      + '<td>'+PC.stBadge(x.st)+'</td>'
+      + '<td style="white-space:nowrap">'
+      + '<button type="button" class="gray small" onclick="PC.editItem('+i+')">✏️</button> '
+      + '<button type="button" class="red small" onclick="PC.delItem('+i+')">✕</button>'
+      + '</td></tr>';
+  }
+  document.getElementById('invBody').innerHTML =
+    h || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:16px">Пусто</td></tr>';
+};
+
+PC.renderSum = function(){
+  var cost=0, prof=0, onShelf=0, i, x;
+  for(i=0;i<PC.inv.length;i++){
+    x = PC.inv[i];
+    cost += x.pin * x.qty;
+    prof += (x.pout - x.pin) * x.qty;
+    if(x.st === 'На полке') onShelf += x.qty;
+  }
+  document.getElementById('summ').innerHTML =
+    '<div style="display:flex;justify-content:space-between;padding:6px 0"><span>Позиций</span><b>'+PC.inv.length+'</b></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:6px 0"><span>На полке</span><b style="color:#16a34a">'+onShelf+'</b></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:6px 0"><span>Вложено</span><b>'+PC.fmt(cost)+' BYN</b></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:6px 0"><span>Прибыль</span><b style="color:#16a34a">+'+PC.fmt(prof)+'</b></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:6px 0"><span>Комплектов</span><b style="color:#7c3aed">'+PC.kits.length+'</b></div>';
+};
+
+/* ============ КОМПЛЕКТЫ ============ */
+PC.renderPick = function(){
+  var avail = PC.inv.filter(function(x){ return x.st==='На полке' && x.qty>0; });
+  if(!avail.length){
+    document.getElementById('kPick').innerHTML = '<small style="color:#94a3b8">Нет деталей «На полке»</small>';
+    return;
+  }
+  var groups = {}, i, x;
+  for(i=0;i<avail.length;i++){
+    x = avail[i];
+    if(!groups[x.cat]) groups[x.cat] = [];
+    groups[x.cat].push(x);
+  }
+  var h = '';
+  for(var cat in groups){
+    h += '<div style="font-size:11px;color:#64748b;margin:6px 2px 2px;font-weight:700;text-transform:uppercase">'+PC.esc(cat)+'</div>';
+    for(i=0;i<groups[cat].length;i++){
+      x = groups[cat][i];
+      h += '<label class="kit-row"><input type="checkbox" data-id="'+x.id+'" data-pin="'+x.pin+'" onchange="PC.calcKit()">'
+        + '<span class="kn">'+PC.esc(x.name)+'</span>'
+        + '<small>'+PC.fmt(x.pin)+' BYN</small></label>';
+    }
+  }
+  document.getElementById('kPick').innerHTML = h;
+};
+
+PC.calcKit = function(){
+  var boxes = document.querySelectorAll('#kPick input[type=checkbox]:checked');
+  var sum = 0, i;
+  for(i=0;i<boxes.length;i++) sum += +boxes[i].dataset.pin || 0;
+  var price = +document.getElementById('kPr').value || 0;
+  document.getElementById('kSum').innerHTML =
+    'Себестоимость: <b>'+PC.fmt(sum)+'</b> • Продажа: <b>'+PC.fmt(price)+'</b> • Маржа: <b style="color:'+(price-sum>=0?'#16a34a':'#ef4444')+'">'+PC.fmt(price-sum)+'</b> BYN';
+};
+
+PC.addKit = function(){
+  var nm = document.getElementById('kNm').value.trim();
+  var pr = +document.getElementById('kPr').value || 0;
+  if(!nm){ PC.toast('Введите название','err'); return; }
+  var boxes = document.querySelectorAll('#kPick input[type=checkbox]:checked');
+  if(!boxes.length){ PC.toast('Выберите детали','err'); return; }
+  var items = [], cost = 0, i, j, x;
+  for(i=0;i<boxes.length;i++){
+    var iid = boxes[i].dataset.id;
+    x = null;
+    for(j=0;j<PC.inv.length;j++){ if(PC.inv[j].id === iid){ x = PC.inv[j]; break; } }
+    if(x){
+      items.push({id:x.id,cat:x.cat,name:x.name,pin:x.pin,sock:x.sock});
+      cost += x.pin;
+    }
+  }
+  PC.kits.push({id:PC.uid(), name:nm, items:items, cost:cost, price:pr, st:document.getElementById('kSt').value});
+  save();
+  document.getElementById('kNm').value = '';
+  document.getElementById('kPr').value = '';
+  var cb = document.querySelectorAll('#kPick input');
+  for(i=0;i<cb.length;i++) cb[i].checked = false;
+  PC.calcKit(); PC.renderKits(); PC.renderSum();
+  PC.toast('Комплект сохранён');
+};
+
+PC.delKit = function(kid){
+  if(!confirm('Удалить комплект?')) return;
+  PC.kits = PC.kits.filter(function(k){ return k.id !== kid; });
+  save(); PC.renderKits(); PC.renderSum();
+};
+
+PC.editKit = function(kid){
+  var k = null, i;
+  for(i=0;i<PC.kits.length;i++) if(PC.kits[i].id === kid){ k = PC.kits[i]; break; }
+  if(!k) return;
+  PC.openModal('✏️ Редактировать комплект',[
+    {k:'name',label:'Название',value:k.name},
+    {k:'price',label:'Цена продажи (BYN)',type:'number',step:'0.01',value:k.price},
+    {k:'st',label:'Статус',type:'select',options:KIT_ST,value:k.st}
+  ], function(d){
+    d.price = +d.price||0;
+    for(var kk in d) k[kk] = d[kk];
+    save(); PC.renderKits();
+    PC.toast('Сохранено');
+  });
+};
+
+PC.renderKits = function(){
+  var h = '', i, j, k;
+  for(i=0;i<PC.kits.length;i++){
+    k = PC.kits[i];
+    var itemsHtml = '';
+    for(j=0;j<k.items.length;j++) itemsHtml += '<li>'+PC.esc(k.items[j].cat)+': '+PC.esc(k.items[j].name)+'</li>';
+    h += '<div class="kit-card"><h4>'+PC.esc(k.name)+' '+PC.stBadge(k.st)+'</h4>'
+      + '<div style="font-size:12px;color:#64748b">Себестоимость: '+PC.fmt(k.cost)+' • Продажа: '+PC.fmt(k.price)+' • Маржа: <b style="color:#16a34a">+'+PC.fmt(k.price-k.cost)+'</b></div>'
+      + '<ul style="font-size:12px;margin:6px 0;padding-left:18px;color:#475569">'+itemsHtml+'</ul>'
+      + '<div class="actions">'
+      + '<button type="button" class="gray small" onclick="PC.editKit(\''+k.id+'\')">✏️ Изменить</button>'
+      + '<button type="button" class="red small" onclick="PC.delKit(\''+k.id+'\')">✕ Удалить</button>'
+      + '</div></div>';
+  }
+  document.getElementById('kList').innerHTML =
+    h || '<div style="text-align:center;color:#94a3b8;padding:16px">Комплектов нет</div>';
+};
+
+/* ============ СБОРЩИК ============ */
+PC.getAvailParts = function(){
+  var used = {};
+  PC.kits.forEach(function(k){
+    if(k.st === 'На полке') k.items.forEach(function(it){ used[it.id] = true; });
+  });
+  return PC.inv.filter(function(x){ return x.st==='На полке' && x.qty>0 && !used[x.id]; });
+};
+PC.getAvailKits = function(){
+  return PC.kits.filter(function(k){ return k.st === 'На полке'; });
+};
+
+PC.build = function(){
+  var avail = PC.getAvailParts();
+  var availKits = PC.getAvailKits();
+  var byCat = {}, i, x;
+
+  for(i=0;i<avail.length;i++){
+    x = avail[i];
+    if(!byCat[x.cat]) byCat[x.cat] = [];
+    byCat[x.cat].push(x);
+  }
+  for(var c in byCat){
+    byCat[c].sort(function(a,b){ return (b.pout-b.pin) - (a.pout-a.pin); });
+  }
+
+  var bestKit = null;
+  availKits.forEach(function(k){
+    var hasCpu = k.items.some(function(it){ return it.cat === 'Процессор'; });
+    var hasMb  = k.items.some(function(it){ return it.cat === 'Материнская плата'; });
+    if(hasCpu && hasMb && (!bestKit || (k.price-k.cost) > (bestKit.price-bestKit.cost))) bestKit = k;
+  });
+
+  var build = {kit:null, parts:{}}, missing = [], socket = null, memType = null;
+
+  if(bestKit){
+    build.kit = bestKit;
+    bestKit.items.forEach(function(it){
+      if(it.cat === 'Процессор' && it.sock) socket = it.sock;
+      if(it.cat === 'Оперативная память' && it.sock) memType = it.sock;
+    });
+    var hasRam = bestKit.items.some(function(it){ return it.cat === 'Оперативная память'; });
+    if(!hasRam){
+      var rams = byCat['Оперативная память'] || [], pick = null;
+      for(i=0;i<rams.length;i++){ if(!memType || !rams[i].sock || rams[i].sock === memType){ pick = rams[i]; break; } }
+      if(pick){ build.parts['Оперативная память'] = pick; memType = pick.sock; }
+      else missing.push('Оперативная память');
+    }
+    var hasCooler = bestKit.items.some(function(it){ return it.cat === 'Кулер'; });
+    if(!hasCooler){
+      var coolers = byCat['Кулер'] || [], cp = null;
+      for(i=0;i<coolers.length;i++){
+        if(!socket || !coolers[i].sock || coolers[i].sock === socket || coolers[i].sock === 'Универсальный'){ cp = coolers[i]; break; }
+      }
+      if(cp) build.parts['Кулер'] = cp;
+    }
+  } else {
+    ['Процессор','Материнская плата','Оперативная память','Кулер'].forEach(function(cat){
+      var list = byCat[cat] || [];
+      if(!list.length){ missing.push(cat); return; }
+      var pick = null, it, j;
+      for(j=0;j<list.length;j++){
+        it = list[j];
+        if(cat === 'Процессор'){ pick = it; break; }
+        if(cat === 'Материнская плата' && (!socket || !it.sock || it.sock === socket)){ pick = it; break; }
+        if(cat === 'Оперативная память' && (!memType || !it.sock || it.sock === memType)){ pick = it; break; }
+        if(cat === 'Кулер' && (!socket || !it.sock || it.sock === socket || it.sock === 'Универсальный')){ pick = it; break; }
+      }
+      if(!pick){ missing.push(cat); return; }
+      build.parts[cat] = pick;
+      if(cat === 'Процессор' && pick.sock) socket = pick.sock;
+      if(cat === 'Материнская плата' && pick.sock) socket = pick.sock;
+      if(cat === 'Оперативная память' && pick.sock) memType = pick.sock;
+    });
+  }
+
+  ['Видеокарта','Накопитель','Блок питания','Корпус'].forEach(function(cat){
+    var list = byCat[cat] || [];
+    if(list.length) build.parts[cat] = list[0];
+    else missing.push(cat);
+  });
+
+  var totalIn = 0, totalOut = 0;
+  if(build.kit){ totalIn += build.kit.cost; totalOut += build.kit.price; }
+  for(var c2 in build.parts){ totalIn += build.parts[c2].pin; totalOut += build.parts[c2].pout; }
+
+  var html = '<h3 style="margin:0 0 10px;font-size:15px">🔥 Предлагаемая сборка</h3>';
+  if(build.kit){
+    html += '<div style="padding:8px 0;border-bottom:1px dashed #bfdbfe">'
+      + '<b style="color:#7c3aed">🧩 '+PC.esc(build.kit.name)+'</b><br>'
+      + '<small style="color:#64748b">Закуп: '+PC.fmt(build.kit.cost)+' • Прод: '+PC.fmt(build.kit.price)+'</small></div>';
+  }
+  for(c2 in build.parts){
+    html += '<div style="padding:8px 0;border-bottom:1px dashed #bfdbfe">'
+      + '<b style="color:#2563eb">'+PC.esc(c2)+':</b> '+PC.esc(build.parts[c2].name)
+      + ' <small style="color:#64748b">('+PC.fmt(build.parts[c2].pin)+' / '+PC.fmt(build.parts[c2].pout)+')</small></div>';
+  }
+  var prof = totalOut - totalIn;
+  var liq = prof >= 300 ? '<span style="color:#16a34a;font-weight:700">Высокая</span>'
+          : prof >= 150 ? '<span style="color:#f59e0b;font-weight:700">Средняя</span>'
+          : '<span style="color:#ef4444;font-weight:700">Низкая</span>';
+  html += '<div style="margin-top:12px;background:#fff;padding:12px;border-radius:8px;border:1px solid #bfdbfe">'
+    + '<div style="margin:5px 0">💰 <b>Себестоимость:</b> '+PC.fmt(totalIn)+' BYN</div>'
+    + '<div style="margin:5px 0">📈 <b>Продажа:</b> '+PC.fmt(totalOut)+' BYN</div>'
+    + '<div style="margin:5px 0;color:#16a34a;font-size:15px">💵 <b>Прибыль: +'+PC.fmt(prof)+' BYN</b></div>'
+    + '<div style="margin:5px 0">📊 <b>Ликвидность:</b> '+liq+'</div></div>';
+  if(missing.length){
+    html += '<div style="color:#b45309;margin-top:8px;font-size:12.5px">⚠️ Не хватает: '+PC.esc(missing.join(', '))+'</div>';
+  }
+  var br = document.getElementById('bRes');
+  br.innerHTML = html;
+  br.style.background = '#fff';
+};
+
+PC.buildAll = function(){
+  var avail = PC.getAvailParts();
+  var availKits = PC.getAvailKits();
+  var i, html = '<h3 style="margin:0 0 10px;font-size:15px">📚 Все доступные ресурсы</h3>';
+  if(availKits.length){
+    html += '<div style="margin-bottom:8px"><b style="color:#7c3aed">Комплекты ('+availKits.length+')</b><ul style="margin:4px 0;padding-left:18px;font-size:13px">';
+    for(i=0;i<availKits.length;i++) html += '<li>'+PC.esc(availKits[i].name)+' — '+PC.fmt(availKits[i].price)+' BYN</li>';
+    html += '</ul></div>';
+  }
+  var byCat = {};
+  for(i=0;i<avail.length;i++){ var x = avail[i]; if(!byCat[x.cat]) byCat[x.cat] = []; byCat[x.cat].push(x); }
+  for(var c in byCat){
+    html += '<div style="margin-bottom:6px"><b style="color:#2563eb">'+PC.esc(c)+':</b> ';
+    var names = [];
+    for(i=0;i<byCat[c].length;i++) names.push(PC.esc(byCat[c][i].name)+' ('+PC.fmt(byCat[c][i].pout)+')');
+    html += names.join(', ')+'</div>';
+  }
+  if(!availKits.length && !avail.length) html += '<div style="color:#94a3b8">На полке пусто</div>';
+  var br = document.getElementById('bRes');
+  br.innerHTML = html;
+  br.style.background = '#fff';
+};
+
+/* ============ ПК ============ */
+PC.addPc = function(){
+  var nm = document.getElementById('pNm').value.trim();
+  if(!nm){ PC.toast('Введите название','err'); return; }
+  PC.pcs.push({
+    id: PC.uid(), name: nm,
+    cpu: document.getElementById('pCpu').value,
+    gpu: document.getElementById('pGpu').value,
+    mb:  document.getElementById('pMb').value,
+    ram: document.getElementById('pRam').value,
+    ssd: document.getElementById('pSs').value,
+    psu: document.getElementById('pPsu').value,
+    cost: +document.getElementById('pCi').value || 0,
+    price: +document.getElementById('pCo').value || 0
+  });
+  save();
+  ['pNm','pCpu','pGpu','pMb','pRam','pSs','pPsu','pCi','pCo'].forEach(function(f){
+    document.getElementById(f).value = '';
+  });
+  PC.renderPcs();
+  PC.toast('ПК сохранён');
+};
+
+PC.delPc = function(pid){
+  if(!confirm('Удалить ПК?')) return;
+  PC.pcs = PC.pcs.filter(function(p){ return p.id !== pid; });
+  save(); PC.renderPcs();
+};
+
+PC.editPc = function(pid){
+  var p = null, i;
+  for(i=0;i<PC.pcs.length;i++) if(PC.pcs[i].id === pid){ p = PC.pcs[i]; break; }
+  if(!p) return;
+  PC.openModal('✏️ Редактировать ПК',[
+    {k:'name',label:'Название',value:p.name},
+    {k:'cpu',label:'Процессор',value:p.cpu},
+    {k:'gpu',label:'Видеокарта',value:p.gpu},
+    {k:'mb',label:'Материнка',value:p.mb},
+    {k:'ram',label:'RAM',value:p.ram},
+    {k:'ssd',label:'Накопитель',value:p.ssd},
+    {k:'psu',label:'БП',value:p.psu},
+    {k:'cost',label:'Себестоимость',type:'number',step:'0.01',value:p.cost},
+    {k:'price',label:'Цена',type:'number',step:'0.01',value:p.price}
+  ], function(d){
+    d.cost = +d.cost||0; d.price = +d.price||0;
+    for(var kk in d) p[kk] = d[kk];
+    save(); PC.renderPcs();
+    PC.toast('Сохранено');
+  });
+};
+
+PC.renderPcs = function(){
+  var avail = PC.getAvailParts();
+  var availKits = PC.getAvailKits();
+  var h = '', i;
+  for(i=0;i<PC.pcs.length;i++){
+    var p = PC.pcs[i];
+    h += '<div class="pc-card"><h4>'+PC.esc(p.name)+'</h4>'
+      + '<div style="font-size:12.5px;color:#64748b">CPU: '+PC.esc(p.cpu||'—')+' • GPU: '+PC.esc(p.gpu||'—')+' • RAM: '+PC.esc(p.ram||'—')+'</div>'
+      + '<div style="font-size:12.5px;margin-top:4px">Себестоимость: '+PC.fmt(p.cost)+' • Цена: '+PC.fmt(p.price)+' • Маржа: <b style="color:#16a34a">+'+PC.fmt(p.price-p.cost)+'</b></div>';
+    var recs = [];
+    availKits.forEach(function(k){
+      var hasCpu = k.items.some(function(it){ return it.cat === 'Процессор'; });
+      if(hasCpu && k.price-k.cost >= 150) recs.push('🧩 Комплект «'+k.name+'» — апгрейд CPU+MB+RAM, +'+PC.fmt(k.price-k.cost)+' BYN');
+    });
+    var gpus = avail.filter(function(x){ return x.cat === 'Видеокарта'; });
+    if(gpus.length){
+      gpus.sort(function(a,b){ return b.pout - a.pout; });
+      if(gpus[0].pout > 200) recs.push('🎮 Видеокарта '+gpus[0].name+' на полке ('+PC.fmt(gpus[0].pout)+' BYN)');
+    }
+    if(recs.length){
+      h += '<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:8px 10px;border-radius:5px;margin-top:8px;font-size:12.5px">';
+      for(var r=0;r<recs.length;r++) h += '<div style="margin:2px 0">'+PC.esc(recs[r])+'</div>';
+      h += '</div>';
+    }
+    h += '<div class="actions">'
+      + '<button type="button" class="gray small" onclick="PC.editPc(\''+p.id+'\')">✏️ Изменить</button>'
+      + '<button type="button" class="red small" onclick="PC.delPc(\''+p.id+'\')">✕ Удалить</button>'
+      + '</div></div>';
+  }
+  document.getElementById('pList').innerHTML = h || '<div style="text-align:center;color:#94a3b8;padding:16px">ПК не добавлены</div>';
+};
+
+/* ============ КЛИЕНТЫ ============ */
+PC.addCli = function(){
+  var nm = document.getElementById('cNm').value.trim();
+  if(!nm){ PC.toast('Введите имя','err'); return; }
+  PC.cli.push({
+    id: PC.uid(), name: nm,
+    contact: document.getElementById('cCt').value,
+    source: document.getElementById('cSr').value,
+    status: document.getElementById('cSt').value,
+    notes: document.getElementById('cNo').value
+  });
+  save();
+  ['cNm','cCt','cNo'].forEach(function(f){ document.getElementById(f).value = ''; });
+  PC.renderCli();
+  PC.toast('Клиент сохранён');
+};
+
+PC.delCli = function(cid){
+  if(!confirm('Удалить клиента?')) return;
+  PC.cli = PC.cli.filter(function(c){ return c.id !== cid; });
+  save(); PC.renderCli();
+};
+
+PC.editCli = function(cid){
+  var c = null, i;
+  for(i=0;i<PC.cli.length;i++) if(PC.cli[i].id === cid){ c = PC.cli[i]; break; }
+  if(!c) return;
+  PC.openModal('✏️ Редактировать клиента',[
+    {k:'name',label:'Имя',value:c.name},
+    {k:'contact',label:'Контакты',value:c.contact},
+    {k:'source',label:'Источник',type:'select',options:SOURCES,value:c.source},
+    {k:'status',label:'Статус',type:'select',options:CLI_ST,value:c.status},
+    {k:'notes',label:'Заметка',type:'textarea',value:c.notes}
+  ], function(d){
+    for(var kk in d) c[kk] = d[kk];
+    save(); PC.renderCli();
+    PC.toast('Сохранено');
+  });
+};
+
+PC.renderCli = function(){
+  var h = '', i;
+  for(i=0;i<PC.cli.length;i++){
+    var c = PC.cli[i];
+    h += '<tr><td><b>'+PC.esc(c.name)+'</b></td>'
+      + '<td>'+PC.esc(c.contact||'—')+'</td>'
+      + '<td>'+PC.esc(c.source)+'</td>'
+      + '<td>'+PC.stBadge(c.status)+'</td>'
+      + '<td>'+PC.esc(c.notes||'—')+'</td>'
+      + '<td style="white-space:nowrap">'
+      + '<button type="button" class="gray small" onclick="PC.editCli(\''+c.id+'\')">✏️</button> '
+      + '<button type="button" class="red small" onclick="PC.delCli(\''+c.id+'\')">✕</button>'
+      + '</td></tr>';
+  }
+  document.getElementById('cBody').innerHTML = h || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:16px">Нет клиентов</td></tr>';
+};
+
+/* ============ ЭКСПОРТ / ИМПОРТ ============ */
+PC.exp = function(){
+  var data = {inv:PC.inv, kits:PC.kits, pcs:PC.pcs, cli:PC.cli, date:new Date().toISOString()};
+  var b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'pc-hub-'+Date.now()+'.json';
+  a.click();
+  PC.toast('Экспортировано');
+};
+
+PC.doImport = function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try {
+      var d = JSON.parse(r.result);
+      if(d.inv)  PC.inv  = d.inv;
+      if(d.kits) PC.kits = d.kits;
+      if(d.pcs)  PC.pcs  = d.pcs;
+      if(d.cli)  PC.cli  = d.cli;
+      save();
+      PC.renderInv(); PC.renderSum(); PC.renderKits(); PC.renderPcs(); PC.renderCli();
+      PC.toast('Импортировано');
+    } catch(err){ PC.toast('Ошибка файла','err'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+};
+
+PC.clr = function(){
+  if(!confirm('Удалить ВСЁ?')) return;
+  PC.inv = []; PC.kits = []; PC.pcs = []; PC.cli = [];
+  save();
+  PC.renderInv(); PC.renderSum(); PC.renderKits(); PC.renderPcs(); PC.renderCli();
+  PC.toast('Очищено');
+};
+
+/* ============ МОДАЛКА ============ */
+PC.openModal = function(title, fields, onSave){
+  var h = '', i, j;
+  for(i=0;i<fields.length;i++){
+    var f = fields[i];
+    h += '<label>'+PC.esc(f.label)+'</label>';
+    if(f.type === 'select'){
+      h += '<select data-k="'+f.k+'">';
+      for(j=0;j<f.options.length;j++){
+        var val = f.options[j];
+        h += '<option value="'+PC.esc(val)+'"'+(val==f.value?' selected':'')+'>'+PC.esc(val||'—')+'</option>';
+      }
+      h += '</select>';
+    } else if(f.type === 'textarea'){
+      h += '<textarea data-k="'+f.k+'" rows="3">'+PC.esc(f.value||'')+'</textarea>';
+    } else {
+      h += '<input data-k="'+f.k+'" type="'+(f.type||'text')+'" value="'+PC.esc(f.value||'')+'"'+(f.step?' step="'+f.step+'"':'')+'>';
+    }
+  }
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mBody').innerHTML = h;
+  PC._onSave = onSave;
+  document.getElementById('modal').classList.add('on');
+};
+
+PC.closeModal = function(){
+  document.getElementById('modal').classList.remove('on');
+  PC._onSave = null;
+};
+
+PC.saveModal = function(){
+  if(!PC._onSave) return;
+  var data = {}, els = document.querySelectorAll('#mBody [data-k]'), i;
+  for(i=0;i<els.length;i++){
+    var k = els[i].dataset.k, v = els[i].value;
+    if(els[i].type === 'number') v = +v || 0;
+    data[k] = v;
+  }
+  PC._onSave(data);
+  PC.closeModal();
+};
+
+/* ============ ИНИЦИАЛИЗАЦИЯ ============ */
+document.getElementById('impFile').addEventListener('change', PC.doImport);
+
+PC.sockOpts();
+PC.renderInv();
+PC.renderSum();
+
+bootOK();
+
+} catch(e){
+  console.error('BOOT FAILED:', e);
+  bootFail(e.message || 'неизвестная ошибка');
+}
+})();
+</script>
+</body>
+</html>
